@@ -1,34 +1,26 @@
-{% extends 'base.html.twig' %}
+{# templates/security/login.html.twig #}
+{% extends 'layouts/auth_layout.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block auth_content %}
+    <form method="post">
+        {% if error %}
+            <div class="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-sm">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
 
-{% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
-
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
+        <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" name="email" value="{{ last_username }}" class="w-full bg-gray-100 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="votre@email.com" required autofocus>
         </div>
-    {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+        <div class="mb-8">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+            <input type="password" name="password" class="w-full bg-gray-100 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-200 outline-none" placeholder="••••••••" required>
+        </div>
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
-    </div>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
+        <button type="submit" class="w-full bg-[#080915] text-white py-4 rounded-2xl font-bold hover:bg-gray-800 transition-colors">
+            Se connecter
+        </button>
+    </form>
 {% endblock %}

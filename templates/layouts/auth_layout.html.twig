@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="min-h-screen bg-[#f0f4ff] flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm w-full max-w-[450px]">
+        
+        <h1 class="text-2xl font-bold text-gray-900">Gestion de Tâches</h1>
+        <p class="text-gray-400 mt-1 mb-8">Organisez votre journée efficacement</p>
+
+        {# La Barre d'onglets (Tabs) #}
+        <div class="bg-gray-100 p-1 rounded-2xl flex mb-8">
+            <a href="{{ path('app_login') }}" 
+               class="flex-1 text-center py-3 rounded-xl transition-all {{ app.request.attributes.get('_route') == 'app_login' ? 'bg-white shadow-sm font-semibold text-gray-900' : 'text-gray-500' }}">
+                Connexion
+            </a>
+            <a href="{{ path('app_register') }}" 
+               class="flex-1 text-center py-3 rounded-xl transition-all {{ app.request.attributes.get('_route') == 'app_register' ? 'bg-white shadow-sm font-semibold text-gray-900' : 'text-gray-500' }}">
+                Inscription
+            </a>
+        </div>
+
+        {# Le contenu qui changera (Login ou Register) #}
+        {% block auth_content %}{% endblock %}
+
+    </div>
+</div>
+{% endblock %}

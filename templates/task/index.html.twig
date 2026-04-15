@@ -1,39 +1,82 @@
-{% extends 'base.html.twig' %}
+{% extends 'layouts/dashboard_layout.html.twig' %}
 
-{% block title %}Task index{% endblock %}
+{% block dashboard_content %}
+<div class="px-8 pb-8">
+    <div class="flex items-center gap-6 mb-8 text-sm">
+        <span class="text-gray-400 flex items-center gap-2"><i class="fas fa-filter"></i> Filtres :</span>
 
-{% block body %}
-    <h1>Task index</h1>
+        <div class="flex items-center gap-2">
+            <span class="text-gray-600">Statut</span>
+            <select id="filterStatus" onchange="applyFilters()"
+                class="bg-gray-100 border-none rounded-lg text-sm focus:ring-0 cursor-pointer">
+                <option value="Tous" {{ currentStatus=='Tous' ? 'selected' }}>Tous</option>
+                <option value="todo" {{ currentStatus=='todo' ? 'selected' }}>À faire</option>
+                <option value="doing" {{ currentStatus=='doing' ? 'selected' }}>En cours</option>
+                <option value="done" {{ currentStatus=='done' ? 'selected' }}>Terminé</option>
+            </select>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>IsPinned</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
+        <div class="flex items-center gap-2">
+            <span class="text-gray-600">Priorité</span>
+            <select id="filterPriority" onchange="applyFilters()"
+                class="bg-gray-100 border-none rounded-lg text-sm focus:ring-0 cursor-pointer">
+                <option value="Toutes" {{ currentPriority=='Toutes' ? 'selected' }}>Toutes</option>
+                <option value="urgent" {{ currentPriority=='urgent' ? 'selected' }}>Urgent</option>
+                <option value="important" {{ currentPriority=='important' ? 'selected' }}>Important</option>
+                <option value="normal" {{ currentPriority=='normal' ? 'selected' }}>Normal</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="space-y-4">
         {% for task in tasks %}
-            <tr>
-                <td>{{ task.id }}</td>
-                <td>{{ task.title }}</td>
-                <td>{{ task.status.value }}</td>
-                <td>{{ task.isPinned ? 'Yes' : 'No' }}</td>
-                <td>
-                    <a href="{{ path('app_task_show', {'id': task.id}) }}">show</a>
-                    <a href="{{ path('app_task_edit', {'id': task.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <div
+            class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+            <input type="checkbox" {{ task.status.value=='done' ? 'checked' }}
+                class="w-5 h-5 rounded-md border-gray-300 text-indigo-600 focus:ring-indigo-500">
 
-    <a href="{{ path('app_task_new') }}">Create new</a>
+            <div class="flex-1">
+                <div class="flex items-center gap-3">
+                    <h4
+                        class="font-semibold {{ task.status.value == 'completed' ? 'text-gray-400 line-through' : 'text-gray-800' }}">
+                        {{ task.title }}
+                    </h4>
+
+                    {% if task.priority %}
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase 
+                {{ task.priority.level == 'urgent' ? 'bg-red-100 text-red-600' : 
+                   task.priority.level == 'important' ? 'bg-orange-100 text-orange-600' : 
+                   'bg-blue-100 text-blue-600' }}">
+                        {{ task.priority.level }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <p class="text-sm text-gray-400">{{ task.status.getLabel() }}</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-20 text-gray-400 italic">
+            Aucune tâche ne correspond à ces critères.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function applyFilters() {
+        const status = document.getElementById('filterStatus').value;
+        const priority = document.getElementById('filterPriority').value;
+
+        const url = new URL(window.location.href);
+
+        if (status && status !== 'Tous') url.searchParams.set('status', status);
+        else url.searchParams.delete('status');
+
+        if (priority && priority !== 'Toutes') url.searchParams.set('priority', priority);
+        else url.searchParams.delete('priority');
+
+        window.location.href = url.href;
+    }
+</script>
 {% endblock %}

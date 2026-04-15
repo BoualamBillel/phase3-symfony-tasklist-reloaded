@@ -16,28 +16,23 @@ class TaskRepository extends ServiceEntityRepository
         parent::__construct($registry, Task::class);
     }
 
-    //    /**
-    //     * @return Task[] Returns an array of Task objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findTasksFiltered($user, ?string $status, ?string $priority): array
+{
+    $qb = $this->createQueryBuilder('t')
+        ->leftJoin('t.priority', 'p')
+        ->where('t.owner = :user')
+        ->setParameter('user', $user);
 
-    //    public function findOneBySomeField($value): ?Task
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    if ($status && $status !== 'Tous') {
+        $qb->andWhere('t.status = :status')
+            ->setParameter('status', $status);
+    }
+
+    if ($priority && $priority !== 'Toutes') {
+        $qb->andWhere('p.level = :p_val') 
+           ->setParameter('p_val', $priority);
+    }
+
+    return $qb->getQuery()->getResult();
+}
 }

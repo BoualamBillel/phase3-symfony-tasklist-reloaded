@@ -5,20 +5,33 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
+use App\Repository\FolderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/task')]
+#[Route('/')]
 final class TaskController extends AbstractController
 {
     #[Route(name: 'app_task_index', methods: ['GET'])]
-    public function index(TaskRepository $taskRepository): Response
+    public function index(Request $request, TaskRepository $taskRepository, FolderRepository $folderRepository): Response
     {
+        $status = $request->query->get('status');
+        $priority = $request->query->get('priority');
+
+        $tasks = $taskRepository->findTasksFiltered(
+            $this->getUser(),
+            $status,
+            $priority
+        );
+
         return $this->render('task/index.html.twig', [
-            'tasks' => $taskRepository->findBy(['owner' => $this->getUser()]),
+            'tasks' => $tasks,
+            'folders' => $folderRepository->findBy(['owner' => $this->getUser()]),
+            'currentStatus' => $status,
+            'currentPriority' => $priority,
         ]);
     }
 
@@ -33,6 +46,11 @@ final class TaskController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $task->setOwner($this->getUser());
+            if (!$task->getStatus()) {
+                $task->setStatus(\App\Enum\Status::Pending);
+            }
+            $task->setIsPinned(false);
+
             $entityManager->persist($task);
             $entityManager->flush();
 
@@ -89,4 +107,6 @@ final class TaskController extends AbstractController
 
         return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }
+
